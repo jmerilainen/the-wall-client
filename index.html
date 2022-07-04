@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The WALL</title>
+</head>
+<body>
+    <h1>The WALL</h1>
+    <main>
+
+    </main>
+
+    <form id="form">
+        <input type="text" name="content">
+        <button>Send</button>
+    </form>
+
+    <script>
+
+        // Tiny Redux
+        const createStore = (reducer, initialState) => {
+            let currentReducer = reducer;
+            let currentState = initialState;
+            let listener = () => {};
+
+            return {
+                dispatch(action) {
+                    currentState = currentReducer(currentState, action);
+                    listener()
+                    return action;
+                },
+                subscribe(newListener) {
+                    listener = newListener;
+                },
+                getState() {
+                    return currentState;
+                }
+            };
+        };
+
+        const reducer = (state = {}, action) => {
+            switch (action.type) {
+                case 'POSTS/FETCHED':
+                    return {...state, posts: action.payload }
+                case 'EDIT':
+                    return {...state, edit: action.payload }
+                default:
+                    return state
+            }
+        }
+
+        const initialState = {
+            posts: [],
+            edit: null,
+        }
+
+        let store = createStore(reducer, initialState)
+
+        const url = 'http://127.0.0.1:8000';
+
+        const refreshData = async () => {
+            const res = await fetch(`${url}/posts`)
+            const posts = await res.json();
+
+            store.dispatch({ type: 'POSTS/FETCHED', payload: posts})
+        }
+
+        const render = (store) => {
+            const renderPost = (item) => {
+                return `
+                <li>
+                    ${store.edit !== item.id
+                        ? `<span onClick="onAboutEdit(${item.id})">${item.content}</span>`
+                        : `<span>
+                            <form onSubmit="onEdit(event, ${item.id})">
+                                <input type="text" id="edit-content-${item.id}" name="content" value="${item.content}" />
+                            </form>
+                        </span>
+                    `}
+                    <button aria-label="Remove item" onClick="onRemove(${item.id})">x</button>
+                </li>`;
+            }
+
+            const pots = store.posts.map(renderPost)
+            document.querySelector('main').innerHTML = `<ul>${pots.join('\n')}</ul>`;
+
+            if (store.edit) {
+                document.querySelector(`#edit-content-${store.edit}`).focus()
+                document.querySelector(`#edit-content-${store.edit}`).select();
+            }
+        };
+
+        const onAboutEdit = (id) => {
+            store.dispatch({ type: 'EDIT', payload: id});
+        }
+
+        const onEdit = async (event, id) => {
+            event.preventDefault();
+
+            await fetch(`${url}/posts/${id}`, {
+                method: 'PATCH',
+                body: new URLSearchParams(new FormData(event.target))
+            })
+
+            event.target.reset();
+
+            store.dispatch({ type: 'EDIT', payload: null });
+
+            refreshData();
+        }
+
+        const onRemove = async (id) => {
+            await fetch(`${url}/posts/${id}`, {
+                method: 'delete',
+            });
+
+            refreshData();
+        }
+
+        document.querySelector('#form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            await fetch(`${url}/posts`, {
+                method: 'post',
+                body: new URLSearchParams(new FormData(event.target))
+            })
+
+            event.target.reset();
+
+            refreshData();
+        });
+
+        refreshData();
+
+        store.subscribe(() =>
+            render(store.getState())
+        );
+
+    </script>
+
+</body>
+</html>
