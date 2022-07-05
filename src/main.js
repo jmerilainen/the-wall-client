@@ -119,7 +119,7 @@ refreshData();
 const render = (store) => {
   const renderPost = (item) => {
       return `
-      <li>
+      <li data-test="entry">
           ${store.edit !== item.id
               ? `<span onClick="onAboutEdit(${item.id})">${item.content}</span>`
               : `<span>
@@ -128,7 +128,7 @@ const render = (store) => {
                   </form>
               </span>
           `}
-          <button aria-label="Remove item" onClick="onRemove(${item.id})">x</button>
+          <button data-test="remove" aria-label="Remove item" onClick="onRemove(${item.id})">x</button>
       </li>`;
   }
 
@@ -143,7 +143,7 @@ const render = (store) => {
   }
 
   const pots = store.posts.map(renderPost)
-  const list = `<ul>${pots.join('\n')}</ul>`;
+  const list = `<ul data-test="entries">${pots.join('\n')}</ul>`;
 
   const html = `
     <h1>The WALL</h1>
@@ -155,7 +155,7 @@ const render = (store) => {
     ${stateHtml}
 
     <form onSubmit="onCreate(event)">
-        <input type="text" name="content">
+        <input data-test="new-entry" type="text" name="content">
         <button>Send</button>
     </form>
   `
