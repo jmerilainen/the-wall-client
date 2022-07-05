@@ -41,10 +41,12 @@
 
         const reducer = (state = {}, action) => {
             switch (action.type) {
-                case 'POSTS/FETCHED':
+                case 'POSTS':
                     return {...state, posts: action.payload }
                 case 'EDIT':
                     return {...state, edit: action.payload }
+                case 'STATE':
+                    return {...state, state: action.payload }
                 default:
                     return state
             }
@@ -53,17 +55,26 @@
         const initialState = {
             posts: [],
             edit: null,
+            state: 'idle',
         }
 
         let store = createStore(reducer, initialState)
 
-        const url = 'http://127.0.0.1:8000';
+        const url = 'http://localhost:8000';
 
         const refreshData = async () => {
-            const res = await fetch(`${url}/posts`)
-            const posts = await res.json();
+            store.dispatch({ type: 'STATE', payload: 'loading'})
 
-            store.dispatch({ type: 'POSTS/FETCHED', payload: posts})
+            try {
+                const res = await fetch(`${url}/posts`)
+                    .catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}))
+                const posts = await res.json();
+
+                store.dispatch({ type: 'STATE', payload: 'idle'})
+                store.dispatch({ type: 'POSTS', payload: posts})
+            } catch (e) {
+                store.dispatch({ type: 'STATE', payload: 'error'})
+            }
         }
 
         const render = (store) => {
@@ -82,8 +93,20 @@
                 </li>`;
             }
 
+            let stateHtml = '';
+
+            if (store.state === 'loading') {
+                stateHtml = '<p>Loading</p>';
+            }
+
+            if (store.state === 'error') {
+                stateHtml = '<p>API Error</p>';
+            }
+
             const pots = store.posts.map(renderPost)
-            document.querySelector('main').innerHTML = `<ul>${pots.join('\n')}</ul>`;
+            const list = `<ul>${pots.join('\n')}</ul>`;
+
+            document.querySelector('main').innerHTML = list + stateHtml;
 
             if (store.edit) {
                 document.querySelector(`#edit-content-${store.edit}`).focus()
@@ -97,34 +120,43 @@
 
         const onEdit = async (event, id) => {
             event.preventDefault();
+            store.dispatch({ type: 'STATE', payload: 'loading'})
 
             await fetch(`${url}/posts/${id}`, {
                 method: 'PATCH',
                 body: new URLSearchParams(new FormData(event.target))
-            })
+            }).catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}));
 
             event.target.reset();
 
+            store.dispatch({ type: 'STATE', payload: 'idle'})
             store.dispatch({ type: 'EDIT', payload: null });
 
             refreshData();
         }
 
         const onRemove = async (id) => {
+            store.dispatch({ type: 'STATE', payload: 'loading'})
+
             await fetch(`${url}/posts/${id}`, {
                 method: 'delete',
-            });
+            }).catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}));
 
+            store.dispatch({ type: 'STATE', payload: 'idle'})
             refreshData();
         }
 
         document.querySelector('#form').addEventListener('submit', async (event) => {
             event.preventDefault();
 
+            store.dispatch({ type: 'STATE', payload: 'loading'})
+
             await fetch(`${url}/posts`, {
                 method: 'post',
                 body: new URLSearchParams(new FormData(event.target))
-            })
+            }).catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}));
+
+            store.dispatch({ type: 'STATE', payload: 'idle'})
 
             event.target.reset();
 
@@ -138,6 +170,7 @@
         );
 
     </script>
+
 
 </body>
 </html>
