@@ -14,6 +14,8 @@ describe('The WALL', () => {
 
     cy.wait('@post');
 
+    cy.wait(1000);
+
     cy.get('[data-test=entry]')
       .last()
       .should('contain.text', newItem)
@@ -30,6 +32,8 @@ describe('The WALL', () => {
       .click();
 
     cy.wait('@delete');
+
+    cy.wait(1000);
 
     cy.get('[data-test=entry]')
       .last()
