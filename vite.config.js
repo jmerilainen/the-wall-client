@@ -1,6 +1,7 @@
 module.exports = {
     root: 'src',
     build: {
-      outDir: '../dist'
-    }
+        emptyOutDir: true,
+        outDir: '../dist'
+    },
 }
