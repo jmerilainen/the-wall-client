@@ -45,3 +45,7 @@ Build and serve the preview app for cypress (the [`the-wall-api`](https://github
 Then run test suites:
 
 `npm run test:e2e`
+
+## Deployment
+
+Service is hosted in [fly.io](https://fly.io). Deployment is made via GitHub actions on push to `main` branch.
