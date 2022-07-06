@@ -11,7 +11,9 @@ This project mainly demonstrates API interaction and e2e test between the client
 Run
 
 ```sh
-$ docker-compose -f docker-compose.local.yml up
+$ npm run docker:serve
+
+# equals: docker-compose -f docker-compose.local.yml up
 ```
 
 Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
