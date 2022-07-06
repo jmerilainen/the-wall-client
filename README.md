@@ -17,6 +17,8 @@ $ docker-compose -f docker-compose.local.yml up
 Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
 as well.
 
+Open [http://localhost:5000](http://localhost:5000)
+
 ## Development
 
 **Requirements**
