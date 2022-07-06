@@ -39,3 +39,5 @@ Build and serve the preview app for cypress (the [`the-wall-api`](https://github
 `npm run build && npm run preview`
 
 Then run test suites:
+
+`npm run test:e2e`
