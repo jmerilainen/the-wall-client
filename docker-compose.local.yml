@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  app:
+    build:
+      context: .
+    environment:
+      VITE_API_URL: 'http://localhost:3000'
+    ports:
+      - "5000:8043"
