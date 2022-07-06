@@ -17,7 +17,8 @@ ENV NODE_ENV=production
 
 WORKDIR /app
 
-ENV VITE_API_URL="https://the-wall-api.fly.dev"
+ARG API_URL="https://the-wall-api.fly.dev"
+ENV VITE_API_URL=${API_URL}
 
 COPY --from=deps /app/node_modules ./node_modules
 
