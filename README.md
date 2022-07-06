@@ -3,6 +3,9 @@
 This is a barebone client for the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api).
 
 Demo: https://the-wall.fly.dev
+
+This project mainly demonstrate API interaction and e2e test between the client and the api.
+
 ## Quick install with Docker
 
 Run
