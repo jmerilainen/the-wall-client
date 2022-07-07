@@ -5,6 +5,10 @@ describe('The WALL', () => {
     cy.visit('/')
   })
 
+  it('can load the app', () => {
+    cy.get('h1').contains(`WALL`);
+  })
+
   it('can add a new entry', () => {
     cy.intercept('POST', '/posts',).as('post');
 
