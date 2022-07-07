@@ -15,5 +15,6 @@ jobs:
         env:
           VITE_API_URL: ${secrets.VITE_API_URL}
         with:
+          wait-on: 'http://localhost:4173'
           build: npm run build
           start: npm run preview
