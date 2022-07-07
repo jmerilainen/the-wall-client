@@ -14,13 +14,15 @@ describe('The WALL', () => {
   })
 
   it('can add a new entry', () => {
-    cy.intercept({method: 'POST', url: '/posts'}).as('post');
+    cy.intercept('POST', '/posts').as('post');
+    cy.intercept('GET', '/posts').as('refresh');
 
     const newItem = 'Cypress was here!'
 
     cy.get('[data-test=new-entry]').type(`${newItem}{enter}`)
 
     cy.wait('@post');
+    cy.wait('@refresh');
 
     cy.wait(1000);
 
@@ -30,7 +32,8 @@ describe('The WALL', () => {
   })
 
   it('can add delete an entry', () => {
-    cy.intercept({method: 'DELETE', url: '/posts/*'}).as('delete');
+    cy.intercept('DELETE', '/posts/*').as('delete');
+    cy.intercept('GET', '/posts').as('refresh');
 
     const newItem = 'Cypress was here!'
 
@@ -40,8 +43,7 @@ describe('The WALL', () => {
       .click();
 
     cy.wait('@delete');
-
-    cy.wait(1000);
+    cy.wait('@refresh');
 
     cy.get('[data-test=entry]')
       .last()
