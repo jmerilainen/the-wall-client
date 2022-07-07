@@ -146,6 +146,7 @@ const render = (store) => {
   const list = `<ul data-test="entries">${pots.join('\n')}</ul>`;
 
   const html = `
+    <p>Using the API: <span data-test="api_url">${url}</span></p>
     <h1>The WALL</h1>
 
     <main>
