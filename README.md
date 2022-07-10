@@ -29,25 +29,25 @@ Open [http://localhost:5000](http://localhost:5000)
 
 1. Install dependecies
 
-  ```sh
-  npm install
-  ```
+    ```sh
+    npm install
+    ```
 
 2. Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
 
 3. Set evns
 
-  ```sh
-  export VITE_API_URL=http://localhost:3000` # match the url for the-wall-api
+    ```sh
+    export VITE_API_URL=http://localhost:3000` # match the url for the-wall-api
 
-  # or via .env file or run "cp .env.example .env"
-  ```
+    # or via .env file or run "cp .env.example .env"
+    ```
 
 4. Start development server with watch mode
 
-  ```sh
-  npm run dev
-  ```
+    ```sh
+    npm run dev
+    ```
 
 5. Start coding
 
@@ -61,15 +61,15 @@ To run e2e tests:
 
 1. Serve the build
 
-  ```sh
-  npm run build  && npm run preview
-  ```
+    ```sh
+    npm run build  && npm run preview
+    ```
 
 2. Run the test suites
 
-  ```sh
-  npm run test:e2e
-  ```
+    ```sh
+    npm run test:e2e
+    ```
 
 ## Deployment
 
