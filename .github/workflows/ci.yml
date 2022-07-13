@@ -20,19 +20,14 @@ jobs:
           repository: jmerilainen/the-wall-api
           path: api
 
-      - run: cd api
-
       - name: Run API via docker compose
         run: npm run docker:ci
-
-      - run: cd ..
+          working-directory: api
 
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           path: client
-
-      - run: cd client
 
       - name: Setup node
         uses: actions/setup-node@v3
@@ -41,10 +36,13 @@ jobs:
 
       - name: Download deps
         uses: bahmutov/npm-install@v1
+        with:
+          working-directory: client
 
       - name: Cypress
         uses: cypress-io/github-action@v4
         with:
+          working-directory: client
           build: npm run build
           start: npm run preview
         env:
