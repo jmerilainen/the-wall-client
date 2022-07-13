@@ -22,8 +22,7 @@ jobs:
 
       - name: Run API via docker compose
         run: npm run docker:ci
-        with:
-          working-directory: api
+        working-directory: ./api
 
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -38,12 +37,12 @@ jobs:
       - name: Download deps
         uses: bahmutov/npm-install@v1
         with:
-          working-directory: client
+          working-directory: ./client
 
       - name: Cypress
         uses: cypress-io/github-action@v4
         with:
-          working-directory: client
+          working-directory: ./client
           build: npm run build
           start: npm run preview
         env:
