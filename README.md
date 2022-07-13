@@ -4,16 +4,16 @@ This is a barebone client for the [`the-wall-api`](https://github.com/jmerilaine
 
 Demo: https://the-wall.fly.dev
 
-This project mainly demonstrates API interaction and e2e test between the client and the api.
+This project mainly demonstrates API interaction and e2e test between the Client and the API.
 
-## Quick install with Docker
+## Quickstart with Docker
 
-Run
+To get project running locally with Docker, run
 
 ```sh
-$ npm run docker:serve
+yarn docker:serve
 
-# equals: docker-compose -f docker-compose.local.yml up
+# alias for "docker-compose -f docker-compose.local.yml up"
 ```
 
 Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
@@ -21,31 +21,58 @@ as well.
 
 Open [http://localhost:5000](http://localhost:5000)
 
+## Requirements
+
+- Node.js `16.x`
+
 ## Development
 
-**Requirements**
+1. Install dependecies
 
-- `node 16.x`
+    ```sh
+    npm install
+    ```
 
-`npm install` to install dependencies
+2. Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
 
-Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
-as well.
+3. Set envs
 
-`npm run dev` to run dev server
+    ```sh
+    export VITE_API_URL=http://localhost:3000` # match the url for the-wall-api
 
-Set env `VITE_API_URL=http://localhost:3000` via `.env` file or run `cp .env.example .env`
+    # or via .env file or run "cp .env.example .env"
+    ```
+
+4. Start development server with watch mode
+
+    ```sh
+    npm run dev
+    ```
+
+5. Start coding
 
 ## Testing
 
-Build and serve the preview app for cypress (the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api) should be running as well):
+### E2E
 
-`npm run build && npm run preview`
+Project uses the Cypress for End-to-End (E2E) tests. Tests are in `cypress/e2e` directory.
 
-Then run test suites:
+To run e2e tests:
 
-`npm run test:e2e`
+1. Serve the build
+
+    ```sh
+    npm run build  && npm run preview
+    ```
+
+2. Run the test suites
+
+    ```sh
+    npm run test:e2e
+    ```
 
 ## Deployment
 
-Service is hosted in [fly.io](https://fly.io). Deployment is made via GitHub actions on push to `main` branch.
+Service is hosted in [Fly.io](https://fly.io).
+
+Deployment is made to production via GitHub actions on push to `main` branch.
