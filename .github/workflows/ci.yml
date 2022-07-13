@@ -1,0 +1,64 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {}
+
+jobs:
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: Checkout API repo
+        uses: actions/checkout@v3
+        with:
+          repository: jmerilainen/the-wall-api
+          path: api
+
+      - name: Run API via docker compose
+        run: npm run docker:ci
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        with:
+          path: client
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: Cypress
+        uses: cypress-io/github-action@v4
+        with:
+          build: npm run build
+          start: npm run preview
+        env:
+          VITE_API_URL: http://localhost:3000
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: [e2e]
+    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.9.1
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Deploy to Fly
+        uses: superfly/flyctl-actions@1.3
+        with:
+          args: "deploy --remote-only"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
