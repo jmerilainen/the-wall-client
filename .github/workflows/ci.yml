@@ -22,6 +22,7 @@ jobs:
 
       - name: Run API via docker compose
         run: npm run docker:ci
+        with:
           working-directory: api
 
       - name: Checkout repo
