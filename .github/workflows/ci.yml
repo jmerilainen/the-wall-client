@@ -20,13 +20,19 @@ jobs:
           repository: jmerilainen/the-wall-api
           path: api
 
+      - run: cd api
+
       - name: Run API via docker compose
         run: npm run docker:ci
+
+      - run: cd ..
 
       - name: Checkout repo
         uses: actions/checkout@v3
         with:
           path: client
+
+      - run: cd client
 
       - name: Setup node
         uses: actions/setup-node@v3
