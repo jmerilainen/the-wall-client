@@ -35,7 +35,7 @@ Open [http://localhost:5000](http://localhost:5000)
 
 2. Install and run the [`the-wall-api`](https://github.com/jmerilainen/the-wall-api)
 
-3. Set evns
+3. Set envs
 
     ```sh
     export VITE_API_URL=http://localhost:3000` # match the url for the-wall-api
