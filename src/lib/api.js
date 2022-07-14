@@ -1,4 +1,4 @@
-const API_URL = 'https://the-wall-api.fly.dev';
+const API_URL = import.meta.env.VITE_API_URL;
 
 const api = async (path, args = {}) => {
   const res = await fetch(`${API_URL}${path}`, args);
