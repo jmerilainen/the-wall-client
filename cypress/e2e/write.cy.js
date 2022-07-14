@@ -15,13 +15,17 @@ describe("The WALL", () => {
     cy.get("[data-test=api_url]").should("not.be.empty");
   });
 
-  it("can add a new entry", () => {
+  it("can add a new entries", () => {
     cy.intercept("POST", "/posts").as("post");
     cy.intercept("GET", "/posts").as("refresh");
 
     const newItem = "Cypress was here!";
 
     cy.get("[data-test=new-entry]").type(`First test{enter}`);
+
+    cy.wait("@post");
+    cy.wait("@refresh");
+
     cy.get("[data-test=new-entry]").type(`${newItem}{enter}`);
 
     cy.wait("@post");
