@@ -1,25 +1,7 @@
+import { App } from './components/App';
+import * as api from './lib/api';
+import { createStore } from './lib/redux';
 import './style.css'
-
- // Tiny Redux
- const createStore = (reducer, initialState) => {
-  let currentReducer = reducer;
-  let currentState = initialState;
-  let listener = () => {};
-
-  return {
-      dispatch(action) {
-          currentState = currentReducer(currentState, action);
-          listener()
-          return action;
-      },
-      subscribe(newListener) {
-          listener = newListener;
-      },
-      getState() {
-          return currentState;
-      }
-  };
-};
 
 const reducer = (state = {}, action) => {
   switch (action.type) {
@@ -42,41 +24,35 @@ const initialState = {
 
 let store = createStore(reducer, initialState)
 
-const url = import.meta.env.VITE_API_URL;
-
-const api = async (path, args = {}) => {
-  const res = await fetch(`${url}${path}`, args)
-      .catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}))
-
-   return await res.json();
-}
-
+const dispatch = store.dispatch;
 
 const refreshData = async () => {
-  store.dispatch({ type: 'STATE', payload: 'loading'})
+  dispatch({ type: 'STATE', payload: 'loading'})
 
   try {
-      const posts = await api('/posts');
+      const posts = await api.all();
 
-      store.dispatch({ type: 'STATE', payload: 'idle'})
-      store.dispatch({ type: 'POSTS', payload: posts})
+      dispatch({ type: 'STATE', payload: 'idle'})
+      dispatch({ type: 'POSTS', payload: posts})
   } catch (e) {
-      store.dispatch({ type: 'STATE', payload: 'error'})
+      dispatch({ type: 'STATE', payload: 'error'})
   }
 }
 
-const onAboutEdit = (id) => {
-  store.dispatch({ type: 'EDIT', payload: id});
+const onEdit = (id) => {
+  dispatch({ type: 'EDIT', payload: id});
+
+  if (id) {
+    document.querySelector(`#edit-content-${id}`).focus()
+    document.querySelector(`#edit-content-${id}`).select();
+  }
 }
 
-const onEdit = async (event, id) => {
+const onEditSubmit = async (event, id) => {
   event.preventDefault();
-  store.dispatch({ type: 'STATE', payload: 'loading'})
+  dispatch({ type: 'STATE', payload: 'loading'})
 
-  await api(`/posts/${id}`, {
-      method: 'PATCH',
-      body: new URLSearchParams(new FormData(event.target))
-  });
+  await api.edit(id, new URLSearchParams(new FormData(event.target)));
 
   event.target.reset();
 
@@ -89,12 +65,14 @@ const onEdit = async (event, id) => {
 const onRemove = async (id) => {
   store.dispatch({ type: 'STATE', payload: 'loading'})
 
-  await api(`/posts/${id}`, {
-      method: 'delete',
-  });
+  try {
+    await api.destroy(id);
+    store.dispatch({ type: 'STATE', payload: 'idle'});
 
-  store.dispatch({ type: 'STATE', payload: 'idle'})
-  refreshData();
+    refreshData();
+  } catch (e) {
+    dispatch({ type: 'STATE', payload: 'error'})
+  }
 }
 
 const onCreate = async (event) => {
@@ -102,10 +80,7 @@ const onCreate = async (event) => {
 
   store.dispatch({ type: 'STATE', payload: 'loading'})
 
-  await fetch(`${url}/posts`, {
-      method: 'post',
-      body: new URLSearchParams(new FormData(event.target))
-  }).catch(() => void store.dispatch({ type: 'STATE', payload: 'error'}));
+  await api.create(new URLSearchParams(new FormData(event.target)))
 
   store.dispatch({ type: 'STATE', payload: 'idle'})
 
@@ -114,66 +89,32 @@ const onCreate = async (event) => {
   refreshData();
 }
 
+const dispatchAction = (action) => {
+  console.log(action);
+  switch (action.type) {
+    case 'EDIT':
+      return onEdit(action.payload.id);
+    case 'EDIT_DISCARD':
+      return onEdit(null);
+    case 'EDIT_SUBMIT':
+      return onEditSubmit(action.event, action.payload.id);
+    case 'CREATE_SUBMIT':
+      return onCreate(action.event);
+    case 'REMOVE_SUBMIT':
+      return onRemove(action.payload.id);
+    default:
+        return;
+  }
+}
+
 refreshData();
 
 const render = (store) => {
-  const renderPost = (item) => {
-      return `
-      <li data-test="entry">
-          ${store.edit !== item.id
-              ? `<span onClick="onAboutEdit(${item.id})">${item.content}</span>`
-              : `<span>
-                  <form onSubmit="onEdit(event, ${item.id})">
-                      <input type="text" id="edit-content-${item.id}" name="content" value="${item.content}" />
-                  </form>
-              </span>
-          `}
-          <button data-test="remove" aria-label="Remove item" onClick="onRemove(${item.id})">x</button>
-      </li>`;
-  }
-
-  let stateHtml = '';
-
-  if (store.state === 'loading') {
-      stateHtml = '<p>Loading</p>';
-  }
-
-  if (store.state === 'error') {
-      stateHtml = '<p>API Error</p>';
-  }
-
-  const pots = store.posts.map(renderPost)
-  const list = `<ul data-test="entries">${pots.join('\n')}</ul>`;
-
-  const html = `
-    <p>Using the API: <span data-test="api_url">${url}</span></p>
-    <h1>The WALL</h1>
-
-    <main>
-      ${list}
-    </main>
-
-    ${stateHtml}
-
-    <form onSubmit="onCreate(event)">
-        <input data-test="new-entry" type="text" name="content">
-        <button>Send</button>
-    </form>
-  `
-
-  document.querySelector('#app').innerHTML = html;
-
-  if (store.edit) {
-      document.querySelector(`#edit-content-${store.edit}`).focus()
-      document.querySelector(`#edit-content-${store.edit}`).select();
-  }
+  document.querySelector('#app').innerHTML = App(store);
 };
-
-window.onEdit = onEdit
-window.onAboutEdit = onAboutEdit
-window.onRemove = onRemove
-window.onCreate = onCreate
 
 store.subscribe(() =>
   render(store.getState())
 );
+
+window.dispatchAction = dispatchAction;
