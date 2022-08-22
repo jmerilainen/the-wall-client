@@ -16,6 +16,6 @@
   "devDependencies": {
     "cypress": "^10.4.0",
     "vite": "^3.0.7",
-    "vitest": "^0.21.1"
+    "vitest": "^0.22.1"
   }
 }
